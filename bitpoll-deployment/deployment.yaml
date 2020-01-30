@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bitpoll-deployment
+  namespace: bitpoll-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bitpoll
+  template:
+    metadata:
+      labels:
+        app: bitpoll
+    spec:
+      containers:
+      - name: bitpoll
+        image: eroca/bitpoll:0.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: bitpoll-pv-storage
+          mountPath: /Bitpoll/database
+        - name: bitpoll-settings-local-volume
+          mountPath: /Bitpoll/bitpoll/settings_local.py
+          subPath: settings_local.py
+          readOnly: true
+      volumes:
+      - name: bitpoll-pv-storage
+        persistentVolumeClaim:
+          claimName: bitpoll-pv-claim
+      - name: bitpoll-settings-local-volume
+        configMap:
+          name: bitpoll-settings-local-configmap
